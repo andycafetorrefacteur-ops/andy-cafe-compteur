@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   
-  const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
-  const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+   const REDIS_URL = process.env.REDIS_URL;
+  const REDIS_TOKEN = process.env.REDIS_TOKEN;
 
   try {
     const response = await fetch(`${REDIS_URL}/get/sacs_vendus`, {
