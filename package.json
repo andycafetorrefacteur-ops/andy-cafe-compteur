@@ -1,0 +1,34 @@
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+  const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  try {
+    const body = req.body;
+    let quantite = 0;
+
+    // Chercher le produit dans la commande Clover
+    if (body && body.lineItems) {
+      for (const item of body.lineItems) {
+        if (item.name && item.name.toLowerCase().includes('femmes')) {
+          quantite += (item.quantity || 1);
+        }
+      }
+    }
+
+    if (quantite > 0) {
+      // Incrémenter le compteur Redis
+      await fetch(`${REDIS_URL}/incrby/sacs_vendus/${quantite}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+      });
+    }
+
+    res.status(200).json({ ok: true, ajout: quantite });
+  } catch (error) {
+    res.status(200).json({ ok: false, error: error.message });
+  }
+}
